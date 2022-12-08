@@ -13,6 +13,19 @@ var app = express();
 //Import Sequelize
 const { sequelize } = require('./models');
 
+//Sequelize Authenticate to ensure there is a connection and the model is sync
+sequelize.authenticate()
+  .then(() => {
+    console.log("Connection established successfully.");
+    return sequelize.sync()
+  }) 
+  .then (() => {
+    console.log("Model successfully sync with database.")
+  })
+  .catch(err => {
+    console.log("Unable to connect to database.", err);
+  })
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
