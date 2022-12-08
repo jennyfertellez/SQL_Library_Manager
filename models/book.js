@@ -8,7 +8,7 @@ module.exports = ( sequelize ) => {
   Book.init({
     //Model attributes are defined here
     id: {
-      type: Sequelize.Model,
+      type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
     },
