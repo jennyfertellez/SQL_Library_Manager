@@ -36,10 +36,12 @@ router.get('/books/new', (req, res) => {
 router.post('/books/new', asyncHandler(async (req, res) => {
   let book;
   try {
-
+    book = await Book.create(req.body);
+    res.redirect('/');
   } catch (error) {
     if (error.name === 'SequelizeValidationError') {
-
+      book = await Book.build(req.body);
+      res.render("books/new-book", { book, errors: error.errors, title: "Add A New Book" })
     } else {
       throw error;
     }
@@ -53,12 +55,31 @@ router.get('/books/:id', asyncHandler(async (req, res, next) => {
 
 //Updates book info in the databse
 router.post('/books/:id', asyncHandler(async (req, res) => {
+  let book;
+  try {
+    book = await Book.findByPk(req.params.id);
+    if (book) {
+      await book.update(req.body);
+      res.redirect('/');
+    } else {
+      res.sendStatus(404);
+    }
+  } catch (error) {
+    if (error.name === "SequelizeValidationError") {
 
-}))
+    }
+  }
+}));
 
 //Deletes a book
 router.post('/books/:id/delete', asyncHandler(async (req, res) => {
-
-}))
+  const book = await Book.findByPk(req.params.id);
+  if (book) {
+    await book.destroy();
+    res.redirect('/books');
+  } else {
+    res.sendStatus(404);
+  }
+}));
 
 module.exports = router;
