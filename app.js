@@ -35,7 +35,7 @@ app.set('view engine', 'pug');
 //Static Middleware
 app.use(logger('dev'));
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -49,15 +49,16 @@ app.use(function(req, res, next) {
   err.status = 404;
 
   next(err);
-})
+});
 
 //Global Error Handler
 app.use(function(err, req, res, next) {
   if (err.status === 404) {
     res.status(404);
-    res.render("page-not-found", { err });
+    res.render("page-not-found", { err, title: "Page Not Found"});
+    console.log("404 Error");
   } else {
-    err.message = err.message || `Sorry! Server Not Found`
+    err.message = err.message || `Sorry! Server Not Found`;
     res.status(err.status || 500)
     res.render('error', { err });
   }
