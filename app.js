@@ -10,7 +10,6 @@ var app = express();
 
 //Import Routes Path
 var indexRouter = require('./routes/index');
-var booksRouter = require('./routes/books');
 
 //Import Sequelize
 const { sequelize } = require('./models');
