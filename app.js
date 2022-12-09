@@ -4,16 +4,16 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var bodyParser = require("body-parser");
+var bp = require("body-parser");
 
 var app = express();
 
 //Import Routes Path
 var indexRouter = require('./routes/index');
+var booksRouter = require('./routes/books');
 
 //Import Sequelize
 const { sequelize } = require('./models');
-const { LIMIT_COMPOUND_SELECT } = require('sqlite3');
 
 //Sequelize Authenticate to ensure there is a connection and the model is sync
 sequelize.authenticate()
@@ -35,9 +35,9 @@ app.set('view engine', 'pug');
 //Static Middleware
 app.use(logger('dev'));
 app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bp.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/static', express.static(path.join(__dirname, 'public')));
 
 //Modules
 app.use('/', indexRouter);
