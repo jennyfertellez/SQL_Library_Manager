@@ -4,14 +4,16 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var bodyParser = require("body-parser");
 
 var app = express();
 
-//Import routes paths
+//Import Routes Path
 var indexRouter = require('./routes/index');
 
 //Import Sequelize
 const { sequelize } = require('./models');
+const { LIMIT_COMPOUND_SELECT } = require('sqlite3');
 
 //Sequelize Authenticate to ensure there is a connection and the model is sync
 sequelize.authenticate()
@@ -26,34 +28,44 @@ sequelize.authenticate()
     console.log("Unable to connect to database.", err);
   })
 
-// view engine setup
+//View Engine Setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 //Static Middleware
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Modules
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
-// catch 404 and forward to error handler
+
+//Catch 404 and Forward to Error Handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  const err = new Error('Not Found');
+  err.status = 404;
+
+  next(err);
+})
+
+//Global Error Handler
+app.use(function(err, req, res, next) {
+  if (err.status === 404) {
+    res.status(404);
+    res.render("page-not-found", { err });
+  } else {
+    err.message = err.message || `Sorry! Server Not Found`
+    res.status(err.status || 500)
+    res.render('error', { err });
+  }
 });
 
-// error handler
-app.use(function(error, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = error.message;
-  res.locals.error = req.app.get('env') === 'development' ? error : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+//Start Up The Server
+app.listen(3000, function() {
+  console.log("Server started on Port 3000");
+})
 
 module.exports = app;
