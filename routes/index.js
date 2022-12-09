@@ -38,7 +38,8 @@ router.post('/books/new', asyncHandler(async (req, res) => {
   try {
     book = await Book.create(req.body);
     res.redirect('/');
-  } catch (error) {
+    //Checks the error
+  } catch (error) { 
     if (error.name === 'SequelizeValidationError') {
       book = await Book.build(req.body);
       res.render("books/new-book", { book, errors: error.errors, title: "Add A New Book" })
@@ -50,8 +51,15 @@ router.post('/books/new', asyncHandler(async (req, res) => {
 
 //Shows book detail form
 router.get('/books/:id', asyncHandler(async (req, res, next) => {
-  res.render("books/update-book", { book, title: book.title});
-}))
+  const book = await Book.findByPk(req.paramsid);
+  if (book) {
+    res.render("books/update-book", { book, title: book.title});
+  } else {
+    const error = new Error("We apologize, but the book you are searching for is not in our database.");
+    error.status = 404;
+    next(error);
+  }
+}));
 
 //Updates book info in the databse
 router.post('/books/:id', asyncHandler(async (req, res) => {
@@ -66,7 +74,11 @@ router.post('/books/:id', asyncHandler(async (req, res) => {
     }
   } catch (error) {
     if (error.name === "SequelizeValidationError") {
-
+      book = await Book.build(req.body);
+      book.id = req.params.id; //makes sure correct book is posted
+      res.render("books/update-book", { book, errors: error.errors, title: "Edit Book Information" })
+    } else {
+      throw error;
     }
   }
 }));
