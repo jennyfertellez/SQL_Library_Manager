@@ -5,10 +5,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
 var app = express();
+
+//Import routes paths
+var indexRouter = require('./routes/index');
 
 //Import Sequelize
 const { sequelize } = require('./models');
@@ -18,8 +18,8 @@ sequelize.authenticate()
   .then(() => {
     console.log("Connection established successfully.");
     return sequelize.sync()
-  }) 
-  .then (() => {
+  })
+  .then(() => {
     console.log("Model successfully sync with database.")
   })
   .catch(err => {
@@ -28,8 +28,9 @@ sequelize.authenticate()
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
+//Static Middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
