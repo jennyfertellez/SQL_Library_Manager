@@ -3,8 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 //Import Book Model
-var { Book } = require('../models');
-var book = require('../models/book').default;
+var Book = require('../models').Book;
 
 //Handler function to wrap each route. (Middleware)
 function asyncHandler(cb) {
@@ -29,9 +28,9 @@ router.get('/books', asyncHandler(async (req, res) => {
 }));
 
 //Create a new book form 
-router.get('/books/new', (req, res) => {
-  res.render("books/new-book", { book: {}, title: "Add A New Book"});
-});
+router.get('/books/new', asyncHandler(async (req, res) => {
+  res.render("new-book");
+}));
 
 //Posts a new book to the database
 router.post('/books/new', asyncHandler(async (req, res) => {
@@ -43,7 +42,7 @@ router.post('/books/new', asyncHandler(async (req, res) => {
   } catch (error) { 
     if (error.name === 'SequelizeValidationError') {
       book = await Book.build(req.body);
-      res.render("books/new-book", { book, errors: error.errors, title: "Add A New Book" })
+      res.render("new-book", { book, errors: error.errors})
     } else {
       throw error;
     }
@@ -52,9 +51,9 @@ router.post('/books/new', asyncHandler(async (req, res) => {
 
 //Shows book detail form
 router.get('/books/:id', asyncHandler(async (req, res, next) => {
-  const book = await Book.findByPk(req.paramsid);
+  const book = await Book.findByPk(req.params.id);
   if (book) {
-    res.render("books/update-book", { book, title: book.title});
+    res.render("update-book", { book, title: book.title});
   } else {
     const error = new Error("We apologize, but the book you are searching for is not in our database.");
     error.status = 404;
@@ -77,7 +76,7 @@ router.post('/books/:id', asyncHandler(async (req, res) => {
     if (error.name === "SequelizeValidationError") {
       book = await Book.build(req.body);
       book.id = req.params.id; //makes sure correct book is posted
-      res.render("books/update-book", { book, errors: error.errors, title: "Edit Book Information" })
+      res.render("update-book", { book, errors: error.errors })
     } else {
       throw error;
     }

@@ -36,7 +36,7 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(bp.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use('/static', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 //Modules
 app.use('/', indexRouter);
@@ -62,10 +62,5 @@ app.use(function(err, req, res, next) {
     res.render('error', { err });
   }
 });
-
-//Start Up The Server
-app.listen(3000, function() {
-  console.log("Server started on Port 3000");
-})
 
 module.exports = app;
